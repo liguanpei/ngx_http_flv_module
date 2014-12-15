@@ -62,6 +62,7 @@ ngx_module_t ngx_http_flv_module = {
 	NGX_MODULE_V1_PADDING
 };
 
+/* 计算md5值 */
 void count_md5_value(ngx_str_t *path, u_char result[])
 {
 	ngx_md5_t md5;
@@ -71,12 +72,14 @@ void count_md5_value(ngx_str_t *path, u_char result[])
 	ngx_md5_final(result, &md5);
 }
 
+/* 计算crc32值 */
 void count_crc32_value(u_char src[], uint32_t *crc32_value)
 {
 	ngx_crc32_init(*crc32_value);
 	ngx_crc32_update(crc32_value, src, 16);
 }
 
+/* 获取目录下.file文件数目 */
 ngx_int_t get_file_num(ngx_str_t *path)
 {
 	ngx_int_t file_num = 0;
@@ -96,6 +99,7 @@ ngx_int_t get_file_num(ngx_str_t *path)
 	return file_num;
 }
 
+/* 将flv_path与计算md5,crc32后的文件做对应 */
 u_char *ngx_http_uri_to_path(ngx_http_request_t *r, ngx_str_t *path, 
 		size_t *root_length)
 {
