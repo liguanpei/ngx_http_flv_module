@@ -253,7 +253,8 @@ void printUsage(void);
 
 int yamdi(char *infile, char *outfile) {
 	FILE *fp_infile = NULL, *fp_outfile = NULL;
-	int unlink_infile = 0;
+	int c, unlink_infile = 0;
+	char *outfile, *tempfile, *creator;
 	FLV_t flv;
 
 #ifdef DEBUG
@@ -265,6 +266,9 @@ int yamdi(char *infile, char *outfile) {
 #endif
 
 	opterr = 0;
+
+	tempfile = NULL;
+	creator = NULL;
 
 	initFLV(&flv);
 
@@ -689,7 +693,7 @@ int analyzeFLV(FLV_t *flv, FILE *fp) {
 		// If every frame is longer than the intervalthen add every frame a keyframe
 		if(flv->audio.keyframerate == 0)
 			flv->audio.keyframerate = 1;
-		else if(flv->audio.keyframerate >= (int)flv->audio.ntags)
+		else if(flv->audio.keyframerate >= flv->audio.ntags)
 			flv->audio.keyframerate = flv->audio.ntags;
 
 #ifdef DEBUG
@@ -1788,7 +1792,7 @@ void readH264SPS(h264data_t *h264data, bitstream_t *bitstream) {
 		readCodedSE(bitstream, "offset_for_top_to_bottom_field");
 
 		unsigned int num_ref_frames_in_pic_order_cnt_cycle = readCodedUE(bitstream, "num_ref_frames_in_pic_order_cnt_cycle");
-		for(i = 0; i < (int)num_ref_frames_in_pic_order_cnt_cycle; i++)
+		for(i = 0; i < num_ref_frames_in_pic_order_cnt_cycle; i++)
 			readCodedSE(bitstream, "offset_for_ref_frame");
 	}
 	else if(pic_order_cnt_type == 0)
@@ -2193,7 +2197,7 @@ static ngx_command_t ngx_http_flv_commands[] = {
 	{
 		ngx_string("flv_path"),
 		NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
-		ngx_conf_set_str_slot,
+		nngx_conf_set_str_slot,
 		NGX_HTTP_LOC_CONF_OFFSET,
 		offsetof(ngx_http_flv_loc_conf_t, flv_path),
 		NULL
@@ -2310,9 +2314,6 @@ u_char *ngx_http_uri_to_path(ngx_http_request_t *r, ngx_str_t *path,
 	}
 	last = ngx_copy(path->data, flcf->flv_path.data, flcf->flv_path.len);
 	last = ngx_cpystrn(last, tmp, ngx_strlen(tmp) + 1);
-
-	//yamdi((char *)path->data, "./abc.ya.flv");
-	yamdi("./abc.flv", "./abc.ya.flv");
 	
 	return last;
 }
